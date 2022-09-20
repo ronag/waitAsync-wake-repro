@@ -105,37 +105,6 @@ export function writer({ sharedState, sharedBuffer }) {
     }
   }
 
-  function waitSync(len) {
-    while (true) {
-      const required = len + 4
-      const used = writePos - readPos
-      const available = size - used
-
-      if (available >= required) {
-        const seqPos = writePos % size
-        const seqLen = size - seqPos
-
-        if (seqLen >= required) {
-          return
-        }
-
-        buffer.writeInt32LE(-seqLen, seqPos)
-        writePos += seqLen
-        notify()
-      } else {
-        const valueN = Atomics.load(state, READ_INDEX)
-        // eslint-disable-next-line eqeqeq
-        if (valueN != readPos) {
-          readPos = Number(valueN)
-        } else {
-          notifyNT()
-          Atomics.wait(state, READ_INDEX, valueN)
-          readPos = Number(Atomics.load(state, READ_INDEX))
-        }
-      }
-    }
-  }
-
   async function wait(len) {
     while (true) {
       const required = len + 4
@@ -182,8 +151,6 @@ export function writer({ sharedState, sharedBuffer }) {
     assert(len >= 0)
     assert(len + 4 <= size)
 
-    waitSync(len)
-
     const dataPos = (writePos % size) + 4
     const dataLen = fn(dataPos, buffer, arg1, arg2, arg3) - dataPos
 
@@ -200,7 +167,6 @@ export function writer({ sharedState, sharedBuffer }) {
 
   return {
     write,
-    wait,
-    waitSync
+    wait
   }
 }
