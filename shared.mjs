@@ -161,15 +161,16 @@ export function writer({ sharedState, sharedBuffer }) {
         } else {
           notifyNT()
 
+          // Fake waitAsync to solve deadlock in production...
           // Atomics.wait(state, READ_INDEX, valueN, 100)
           // await tp.setImmediate()
 
-					process._rawDebug('wait started')
+          process._rawDebug('wait started')
           const { async, value: promise } = Atomics.waitAsync(state, READ_INDEX, valueN, 100)
           if (async) {
             await promise
           }
-					process._rawDebug('wait completed')
+          process._rawDebug('wait completed')
 
           readPos = Number(Atomics.load(state, READ_INDEX))
         }
