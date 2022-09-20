@@ -9,4 +9,4 @@ wait started
 #
 ```
 
-Where the last wait never wakes.
+Where the last wait never wakes. See, https://github.com/ronag/waitAsync-wake-repro/blob/main/shared.mjs#L167-L172.
