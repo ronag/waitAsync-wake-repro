@@ -13,14 +13,10 @@ const numValues = 1000
 const size = 39
 const minWrite = 4
 const maxWrite = size - 8
-const slowReader = false
-const asyncWriter = true // !!rand(2)
-console.log('TEST', { size, slowReader, asyncWriter })
 
 const shared = alloc(size)
 const workerPath = path.join(__dirname, 'write-async-worker.mjs')
 const worker = new Worker(workerPath, { workerData: { shared, numValues, minWrite, maxWrite } })
-worker.on('error', console.error)
 
 await new Promise((resolve) => {
 	let expected = 0
@@ -32,9 +28,6 @@ await new Promise((resolve) => {
 		expected++
 		if (expected === numValues) {
 			resolve()
-		}
-		if (slowReader) {
-			await setTimeout(1)
 		}
 	})
 })
